@@ -118,11 +118,19 @@ touch tmp
 
 ### Training a model
 
-You can observe person/transformer_msmt17.ipynb as an example of how to train a state of the art person reid model.
+You can observe **person/transformer_msmt17.ipynb** as an example of how to train a state of the art person reid model.
 
 You are probably going to want GPU resources to train this model as i did.
 
 You can freely customise and upgrade this crucial file and test it on top rank and see if you can get better scores than me.
+
+The dataset is MSMT17, the state of the art triplet loss labelled dataset for person reidentificaiton. Its not ideal and this field requires much larger sets, which I will explore by using self supervised methods in the future of this repo such as dino grounding, but its certainly the biggest and best labelled person REID dataset available. I combine the training and test folders for maximum generaliation on about 130,000 person images.
+
+To download the dataset for training:
+
+```bash
+mkdir -p ./tmp/datasets && pip install gdown && gdown --id 1nqDWKIbYbnj03HikgzywmkSk9MuCU11Y -O ./tmp/datasets/MSMT17_combined.zip && unzip ./tmp/datasets/MSMT17_combined.zip -d ./tmp/ && rm ./tmp/datasets/MSMT17_combined.zip
+```
 
 ### Uploading a model to the hub
 
@@ -141,23 +149,22 @@ huggingface-cli login
 Upload a model if you've used the framework to train a model
 
 ```bash
-python3 upload_download_models/upload_person_transformer.py
+python person/upload_download_models/upload_person_transformer.py
 ```
 
-### Download a model if you want to use the  pre-trained person REID model.
+### Download a model if you want to use the pre-trained person REID model.
 
 Follow the same steps as uploading a model, but download the model with SebLogsdon as your username.
 
 ```bash
-python3 upload_download_models/download_person_transformer.py
+python person/upload_download_models/download_person_transformer.py
 ```
-
 ### Test the model
 
 Once you have the model downloaded, you can test it on top rank accuracy on a small subset of images and verify the name_folders match the top rank names.
 
 ```bash
-python3 person/EveryID_msmt17_top_rank.py
+python person/EveryID_msmt17_top_rank.py
 ```
 
 Without renranking or clustering, you can see the raw vector accuracy of the model is clearly better than the current state of the art, which seems to be using the same model just without the MSMT17 dataset!
@@ -172,7 +179,69 @@ If the model can get us to high top rank accuracies, and we can track the flow o
 the accuracy of the person reid system will skyrocket, conveying how the model is only half of this age old problem.
 
 
+## Scene REID
 
 
+You can observe **scene/best_scene_classifier.ipynb** as an example of how to train a state of the art person reid model.
 
+You are probably going to want GPU resources to train this model as i did.
 
+You can freely customise and upgrade this crucial file and test it on top rank and see if you can get better scores than me.
+
+The dataset is places_205, reduced down to 16 classes to see how efficient of a model can be used while still scoring high results (86%). 
+
+performance degrades using efficientNetb4 significantly after 16 classes because increasing the number of images from 5000 per class labelled isnt possible without immense manual effort. This is decent, but the goal is to be detecting over 50-100 classes with >90% accuracy, and by using innovative strides in transformer architecture, data generation and deep leanring techniques , we will continue to do so for both scene and person REID. Scene should be able to achieve incredible results because of the nature of it being an interclass problem as opposed to person REID which is an intra class problem. Its probably a mixture of the right amount of data per class and the right model that doesnt overfit, which sounds much simpler than how we'll get to >90% with person REID. And by knowing the scene with high confidence, you indirectly aid clustering for persons, because such metadata will minimise the list of possible candidates. So in one sense solving scene is crucial for its own purposes but also in extending the performance of tricky Person REID.
+
+To download the dataset for training and testing:
+
+```bash
+mkdir -p ./tmp/datasets && pip install gdown && gdown --id 10wleF-tFtCpZIcvHelYbmVy8sozBHmOj -O ./tmp/datasets/places205_reduced_improved.zip && unzip ./tmp/datasets/places205_reduced_improved.zip -d ./tmp/ && rm ./tmp/datasets/places205_reduced_improved.zip
+```
+
+### Uploading a model to the hub
+
+Ensure you export your hugging face token in your env.
+
+If you are logged in to the hugging face cli, unset any hub keys and logout.
+
+Then log back in, and your token MUST be a write token from the account you want to upload to, not finegrained or read tokens.
+
+```bash
+unset HF_TOKEN
+huggingface-cli logout
+huggingface-cli login
+```
+
+Upload a model if you've used the framework to train a model:
+
+```bash
+python scene/upload_download_models/upload_scene_cnn.py
+```
+
+### Download a model if you want to use the pre-trained scene REID model.
+
+Follow the same steps as uploading a model, but download the model with SebLogsdon as your username.
+
+```bash
+python scene/upload_download_models/download_scene_cnn.py
+```
+
+### Test the model
+
+Visit the aformentioned training script for Scene REID model training at ••scene/best_scene_classifier.ipynb** and if you already have the model, follow the instructions at the bottom to use the Scene REID model on inference images completely unseen by the training data. It almost always gets the right answer on the 16 classes trained on, suggesting large increases in scene type will be amenable to generalisation given sufficient training data labelled in the right folder for the scene class.
+
+## Advanced Object Detection pipeline
+
+This section of the repository is important because it precdes person REID.
+
+You must first detect the human class on large quanities of footage as a prerequisite before reocngising specifcally who said human is.
+
+Therefore it is crucial to set up a robust object detection piepline, this h=could help for object grounding and not just people.
+
+The more extra detail we have the better.
+
+.........
+
+## Advanced clustering solutions
+
+In order to improve reid, we are going to need to think of some intelligent clusterig solutions whose metric of good is not simply pixel wise similiarity; this will only take us so far..........
