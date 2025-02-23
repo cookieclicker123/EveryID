@@ -15,7 +15,7 @@ IMG_SIZE = 224
 EMBEDDING_DIM = 512
 DROPOUT_PROB = 0.3
 MODEL_PATH = "./tmp/person_models/person_reid_model_vit_msmt17_final.pth"
-FOLDER_PATH = "./datasets/people"
+FOLDER_PATH = "./tmp/datasets/people"
 OUTPUT_DIR = "./tmp/reid_results/people_reid_msmt17"
 
 def init_model(model_path: str) -> Tuple[nn.Module, ViTFeatureExtractor]:
