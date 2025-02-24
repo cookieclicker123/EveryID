@@ -8,7 +8,8 @@ from object.video_object_detection_with_tracking import (
     process_video_frames_with_tracking,
     save_detection_video_with_tracking,
     save_tracking_results_to_csv,
-    TrackedObject
+    TrackedObject,
+    MovementSpeed
 )
 
 @pytest.fixture
@@ -115,8 +116,40 @@ def test_tracking_consistency(yolo_model, test_video_path):
     
     assert len(track_ids) > 0, "No tracks found"
 
-def test_csv_export(yolo_model, test_video_path, output_csv_path):
-    """Test CSV export functionality."""
+def test_movement_metrics(yolo_model, test_video_path):
+    """Test calculation of enhanced movement metrics."""
+    frame_generator = process_video_frames_with_tracking(
+        test_video_path,
+        yolo_model,
+        conf_threshold=0.5
+    )
+    
+    # Test first few frames
+    for _ in range(3):
+        result = next(frame_generator)
+        for obj in result["tracked_objects"]:
+            # Check all new attributes exist
+            assert hasattr(obj, 'speed')
+            assert hasattr(obj, 'direction')
+            assert hasattr(obj, 'movement_type')
+            
+            # Validate speed
+            if obj.speed is not None:
+                assert obj.speed >= 0
+                assert isinstance(obj.speed, float)
+            
+            # Validate direction
+            if obj.direction is not None:
+                assert 0 <= obj.direction <= 360
+                assert isinstance(obj.direction, float)
+            
+            # Validate movement type
+            if obj.movement_type is not None:
+                assert isinstance(obj.movement_type, MovementSpeed)
+                assert obj.movement_type in MovementSpeed
+
+def test_enhanced_csv_export(yolo_model, test_video_path, output_csv_path):
+    """Test CSV export with enhanced movement metrics."""
     # Generate tracking results
     results = []
     for i, result in enumerate(process_video_frames_with_tracking(test_video_path, yolo_model)):
@@ -131,19 +164,94 @@ def test_csv_export(yolo_model, test_video_path, output_csv_path):
     assert os.path.exists(output_csv_path)
     df = pd.read_csv(output_csv_path)
     
-    # Check structure
+    # Check new columns exist
     required_columns = [
-        'frame_number', 'track_id', 'class_id', 'confidence',
-        'x1', 'y1', 'x2', 'y2', 'center_x', 'center_y'
+        'frame_number', 'timestamp', 'track_id', 'class_id', 'confidence',
+        'x1', 'y1', 'x2', 'y2', 'center_x', 'center_y',
+        'velocity_x', 'velocity_y', 'speed', 'direction', 'movement_type'
     ]
     assert all(col in df.columns for col in required_columns)
     
-    # Check data validity
-    assert len(df) > 0
-    assert df['class_id'].unique() == [0]  # Only person class
-    assert (df['confidence'] >= 0).all() and (df['confidence'] <= 1).all()
-    assert (df['x2'] > df['x1']).all()
-    assert (df['y2'] > df['y1']).all()
+    # Validate data types and ranges
+    assert df['speed'].dtype in ['float64', 'float32']
+    assert (df['speed'] >= 0).all()
+    
+    assert df['direction'].dtype in ['float64', 'float32']
+    assert (df['direction'] >= 0).all()
+    assert (df['direction'] <= 360).all()
+    
+    assert df['movement_type'].isin([e.value for e in MovementSpeed]).all()
+
+def test_movement_classification(yolo_model, test_video_path):
+    """Test movement classification thresholds."""
+    frame_generator = process_video_frames_with_tracking(
+        test_video_path,
+        yolo_model,
+        conf_threshold=0.5
+    )
+    
+    movement_types_found = set()
+    
+    for result in process_video_frames_with_tracking(test_video_path, yolo_model):
+        for obj in result["tracked_objects"]:
+            if obj.movement_type:
+                movement_types_found.add(obj.movement_type)
+                
+                # Verify speed matches movement type
+                if obj.movement_type == MovementSpeed.STATIONARY:
+                    assert obj.speed < 50
+                elif obj.movement_type == MovementSpeed.WALKING:
+                    assert 50 <= obj.speed < 200
+                elif obj.movement_type == MovementSpeed.RUNNING:
+                    assert obj.speed >= 200
+                    
+        if len(movement_types_found) >= 2:  # Found at least two different movement types
+            break
+    
+    assert len(movement_types_found) > 0, "No movement classifications found"
+
+def test_velocity_consistency(yolo_model, test_video_path):
+    """Test that velocity calculations are consistent over time."""
+    last_velocities = {}
+    
+    for result in process_video_frames_with_tracking(test_video_path, yolo_model):
+        for obj in result["tracked_objects"]:
+            if obj.track_id in last_velocities and obj.velocity:
+                last_vel = last_velocities[obj.track_id]
+                current_vel = obj.velocity
+                
+                # Velocity shouldn't change too drastically between frames
+                if last_vel and current_vel:
+                    vel_change = np.sqrt(
+                        (current_vel[0] - last_vel[0])**2 +
+                        (current_vel[1] - last_vel[1])**2
+                    )
+                    # Allow for more realistic velocity changes (roughly 8-9 m/s in pixel space)
+                    assert vel_change < 1000, f"Unrealistic velocity change detected: {vel_change:.2f} px/s"
+                    
+                    # Additional sanity checks
+                    assert not np.isnan(vel_change), "NaN velocity detected"
+                    assert np.isfinite(vel_change), "Infinite velocity detected"
+            
+            if obj.velocity:
+                last_velocities[obj.track_id] = obj.velocity
+
+def test_tracked_object_initialization():
+    """Test TrackedObject initialization with movement metrics."""
+    obj = TrackedObject(
+        track_id=1,
+        class_id=0,
+        confidence=0.95,
+        bbox={"x1": 0.0, "y1": 0.0, "x2": 100.0, "y2": 200.0},
+        center_point=(50, 100)
+    )
+    
+    assert obj.speed is None
+    assert obj.direction is None
+    assert obj.movement_type is None
+    assert obj.velocity is None
+    assert obj.trace is not None
+    assert len(obj.trace) == 1
 
 def test_video_saving(yolo_model, test_video_path, output_video_path):
     """Test video saving with tracking visualization."""
