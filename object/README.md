@@ -14,4 +14,5 @@
 ```bash
 pytest object/tests/test_object_detection.py -v
 pytest object/tests/test_video_object_detection.py -v
+pytest object/tests/test_video_object_detection_with_tracking.py -v
 ```
