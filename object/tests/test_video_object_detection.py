@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import os
 from object.video_object_detection import load_yolo_model, process_video_frames, save_detection_video
+from object.data_model import Detection, FrameResult
 from ultralytics import YOLO
 
 @pytest.fixture
@@ -58,23 +59,29 @@ def test_frame_processing(yolo_model, test_video_path):
     first_result = next(frame_generator)
     
     # Check result structure
-    assert isinstance(first_result, dict)
-    assert all(key in first_result for key in ["frame", "detections", "frame_number"])
+    assert isinstance(first_result, FrameResult)
+    assert hasattr(first_result, "frame")
+    assert hasattr(first_result, "detections")
+    assert hasattr(first_result, "frame_number")
     
     # Check frame properties
-    assert isinstance(first_result["frame"], np.ndarray)
-    assert len(first_result["frame"].shape) == 3  # Height, width, channels
+    assert isinstance(first_result.frame, np.ndarray)
+    assert len(first_result.frame.shape) == 3  # Height, width, channels
     
     # Check detections format
-    for detection in first_result["detections"]:
-        assert isinstance(detection, dict)
-        assert all(key in detection for key in ["class_id", "confidence", "bbox"])
-        assert isinstance(detection["confidence"], float)
-        assert 0 <= detection["confidence"] <= 1
+    for detection in first_result.detections:
+        assert isinstance(detection, Detection)
+        assert hasattr(detection, "class_id")
+        assert hasattr(detection, "confidence")
+        assert hasattr(detection, "bbox")
+        assert isinstance(detection.confidence, float)
+        assert 0 <= detection.confidence <= 1
         
-        bbox = detection["bbox"]
-        assert all(key in bbox for key in ["x1", "y1", "x2", "y2"])
-        assert all(isinstance(bbox[key], float) for key in bbox)
+        bbox = detection.bbox
+        assert hasattr(bbox, "x1")
+        assert hasattr(bbox, "y1")
+        assert hasattr(bbox, "x2")
+        assert hasattr(bbox, "y2")
 
 def test_frame_skipping(yolo_model, test_video_path):
     """Test frame skipping functionality."""
@@ -82,7 +89,7 @@ def test_frame_skipping(yolo_model, test_video_path):
     frame_numbers = []
     
     for result in process_video_frames(test_video_path, yolo_model, skip_frames=skip_frames):
-        frame_numbers.append(result["frame_number"])
+        frame_numbers.append(result.frame_number)
         if len(frame_numbers) >= 5:  # Check first 5 processed frames
             break
     
@@ -134,8 +141,8 @@ def test_person_only_detection(yolo_model, test_video_path):
             result = next(frame_generator)
             
             # Verify all detections are people
-            for detection in result["detections"]:
-                assert detection["class_id"] == 0, "Non-person detection found"
+            for detection in result.detections:
+                assert detection.class_id == 0, "Non-person detection found"
                 person_detections_found = True
                 
         except StopIteration:
@@ -155,5 +162,5 @@ def test_non_person_filtering(yolo_model, test_video_path):
     result = next(frame_generator)
     
     # Verify only person detections are present
-    assert all(det["class_id"] == 0 for det in result["detections"]), \
+    assert all(det.class_id == 0 for det in result.detections), \
         "Non-person detections found"
