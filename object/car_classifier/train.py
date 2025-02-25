@@ -8,6 +8,7 @@ import shutil
 from sklearn.model_selection import train_test_split
 import yaml
 from PIL import Image
+import logging
 
 def verify_device():
     """Verify and setup the fastest available device"""
@@ -124,85 +125,76 @@ def prepare_data():
         return max(x1_vals), max(y1_vals), max(x2_vals), max(y2_vals)
 
     def process_split(indices, split_name):
-        """Process and convert annotations to YOLO format"""
-        print("\nProcessing split:", split_name)
         processed = 0
         failed = 0
+        size_mismatches = 0
         
-        # Debug first few conversions
-        print("\nChecking file mappings:")
-        for idx in indices[:5]:
-            anno = train_annos[idx]
-            orig_path = str(anno['relative_im_path'][0])
-            src_name = convert_filename(orig_path.replace('car_ims/', ''))
-            actual_path = train_dir / src_name
-            print(f"Original: {orig_path} -> Converted: {src_name} -> Exists: {actual_path.exists()}")
+        logging.info(f"\nProcessing {split_name} split")
+        logging.info(f"Total indices to process: {len(indices)}")
         
-        # Continue with processing...
         for idx in indices:
             anno = train_annos[idx]
             try:
                 orig_path = str(anno['relative_im_path'][0])
                 src_name = convert_filename(orig_path.replace('car_ims/', ''))
-                
                 src_path = train_dir / src_name
+                
                 if src_path.exists():
-                    dst_path = dataset_dir / 'images' / split_name / src_name
-                    shutil.copy(src_path, dst_path)
-                    
-                    # Get current image dimensions
                     with Image.open(src_path) as img:
-                        current_size = img.size
-                    
-                    # Get original bbox coordinates
-                    x1 = float(anno['bbox_x1'][0][0])
-                    y1 = float(anno['bbox_y1'][0][0])
-                    x2 = float(anno['bbox_x2'][0][0])
-                    y2 = float(anno['bbox_y2'][0][0])
-                    
-                    # Scale coordinates to match current image size
-                    x1, y1, x2, y2 = scale_coordinates(
-                        x1, y1, x2, y2,
-                        (3220, 2506),  # Max bbox dimensions from annotations
-                        current_size
-                    )
-                    
-                    if processed < 5:  # Debug first 5
-                        print(f"\nProcessing {src_name}:")
-                        print(f"Image size: {current_size}")
-                        print(f"Scaled bbox: x1={x1:.1f}, y1={y1:.1f}, x2={x2:.1f}, y2={y2:.1f}")
-                    
-                    # Normalize coordinates
-                    x1 = x1 / current_size[0]
-                    y1 = y1 / current_size[1]
-                    x2 = x2 / current_size[0]
-                    y2 = y2 / current_size[1]
-                    
-                    if processed < 5:
-                        print(f"Normalized: x1={x1:.3f}, y1={y1:.3f}, x2={x2:.3f}, y2={y2:.3f}")
-                    
-                    # Convert to YOLO format
-                    center_x = (x1 + x2) / 2
-                    center_y = (y1 + y2) / 2
-                    width = x2 - x1
-                    height = y2 - y1
-                    
-                    # Create label file
-                    label_path = dataset_dir / 'labels' / split_name / src_name.replace('.jpg', '.txt')
-                    with open(label_path, 'w') as f:
-                        class_id = int(anno['class'][0][0]) - 1
-                        f.write(f"{class_id} {center_x:.6f} {center_y:.6f} {width:.6f} {height:.6f}\n")
-                    
-                    processed += 1
-                    
+                        width, height = img.size
+                        
+                        # Get bbox coordinates
+                        x1 = float(anno['bbox_x1'][0][0])
+                        y1 = float(anno['bbox_y1'][0][0])
+                        x2 = float(anno['bbox_x2'][0][0])
+                        y2 = float(anno['bbox_y2'][0][0])
+                        
+                        # Calculate center coordinates and dimensions (YOLO format)
+                        # YOLO wants: <center-x> <center-y> <width> <height>
+                        # All values normalized between 0 and 1
+                        box_width = x2 - x1
+                        box_height = y2 - y1
+                        center_x = x1 + (box_width / 2)
+                        center_y = y1 + (box_height / 2)
+                        
+                        # Normalize by image dimensions
+                        center_x /= width
+                        center_y /= height
+                        box_width /= width
+                        box_height /= height
+                        
+                        # Clamp values between 0 and 1
+                        center_x = max(0, min(1, center_x))
+                        center_y = max(0, min(1, center_y))
+                        box_width = max(0, min(1, box_width))
+                        box_height = max(0, min(1, box_height))
+                        
+                        # Log for debugging
+                        logging.debug(f"\nProcessing {src_name}:")
+                        logging.debug(f"Image size: {width}x{height}")
+                        logging.debug(f"Original bbox: ({x1},{y1}) to ({x2},{y2})")
+                        logging.debug(f"Normalized YOLO format: {center_x:.3f} {center_y:.3f} {box_width:.3f} {box_height:.3f}")
+                        
+                        # Only process if box makes sense
+                        if 0 < box_width < 1 and 0 < box_height < 1:
+                            processed += 1
+                        else:
+                            size_mismatches += 1
+                            logging.warning(f"Invalid box dimensions for {src_name}")
+                            
+                else:
+                    logging.error(f"File not found: {src_path}")
+                    failed += 1
+                
             except Exception as e:
-                print(f"Error processing {src_name}: {str(e)}")
+                logging.error(f"Error processing {idx}: {str(e)}")
                 failed += 1
         
-        print(f"\n{split_name} Split Summary:")
-        print(f"Processed successfully: {processed}")
-        print(f"Failed to process: {failed}")
-        print(f"Coverage: {(processed/len(train_annos))*100:.1f}%")
+        logging.info(f"\nSplit Summary for {split_name}:")
+        logging.info(f"Total expected: {len(indices)}")
+        logging.info(f"Processed: {processed}")
+        logging.info(f"Failed: {failed}")
+        logging.info(f"Size mismatches: {size_mismatches}")
         
         return processed, failed
     
@@ -224,7 +216,7 @@ def train():
     dataset_yaml = prepare_data()
     
     # Initialize model
-    model = YOLO('yolov8l.pt')
+    model = YOLO('yolo11l.pt')
     
     # Training arguments
     args = {

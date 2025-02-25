@@ -30,23 +30,43 @@ python object/video_object_detection_with_tracking.py
 
 ## Train a detection model from scratch
 
-Learn about using hugging face to aqquire data, how to prepare such data for training, selecting a fast but accurate detection model thats pretrained for finetuning, and tweaking hyperparameters to optmise the perofmrance and accuracy of training so you can go from idea to generalised solution on detection inference.
-
-We specifically showcase training on the manufacterer type column of the FGVC-Aircraft dataset.
-This is more tailored to EveryID, because the ideal thing is to not just detect humans but to detect types of humans, or in this case the specific palne manufactuer and not just that we have a plane.
-This will mean when ou run EveryPerson through footage, the top_k results dont have silly predicitions after the top10_k.
-This might not be a problem for top rank , but it certianly is for mean average precision (mAP) which is the most meaningful reid metric for generalisaiton. At postprocessing the crucial stage of clustering indviduals means we need high mean average precision for each person , making clusters a viable post processing method to signifcantly enhance the perfofmance of reid.
-
-Even to be able to narrow down whether someone is young, old, male or female will meaninfully increase the mAP of reid, while being completely detached from that process , which is clean. A kind of cross examination is certainly what's required, and if there is as much metadata as possible associated with peoples then impossible matches are prevented , thus improving clustering through higher precision, without any actual improvment of the reid model itself. 
-
-A lot of the clever solutions throughout the constrcution of this project will certainly come from extracting all value out of every pre and post prcoessing step. This is what many researchers have failed to understand is the fundamental problem.
-
-If someone is in the same clothes and easy to see, reid should and is simple enough, but no practical reid use case is without immense noise beyond what vectors can reconcile to reason. Therefore solutions come from understanding what represents a person, because a representation has multiple dimensions. Similairty is certianly one of those, but not the only dimension.
-
-I am reappraising the problem with fresh eyes as i made all these mistakes last year.
-
-ideally use a gpu for training, but it will work with cpu , just be slower. This is a relatively small set and model, so both will work.
+Learn about using YOLO to train a car classifier from scratch, demonstrating crucial lessons about data requirements and class complexity in real-world detection tasks.
 
 ```bash
-python object/plane_manufacturer_detection_cookbook/train.py
+python object/car_classifier/download_test.py
+python object/car_classifier/annotation_test.py
+python object/car_classifier/train.py
 ```
+
+### Key Lessons Learned:
+
+1. Class Complexity vs Data Requirements
+   - Initial attempt: 196 car types with ~27 images per class
+   - Result: Poor mAP (< 0.0001) despite decreasing loss
+   - Lesson: Deep learning needs substantial data per class (typically hundreds, not dozens)
+
+2. Why This Matters for EveryID
+   - Person ReID faces similar challenges: many distinct identities (classes) with limited samples
+   - Just as cars have subtypes (makes/models), people have attributes (age, gender, clothing)
+   - The "closed set" nature of car classification mirrors ReID challenges
+   
+3. Data Requirements for Reliable Classification
+   - Need balance between:
+     - Number of classes (complexity)
+     - Images per class (representation)
+     - Class distinctiveness (feature separation)
+   
+4. Implications for Person ReID
+   - Pure similarity matching isn't enough
+   - Need hierarchical attributes (like car make→model)
+   - Better to have fewer, well-represented classes than many sparse ones
+   - Cross-validation with attributes can improve precision
+
+This experiment demonstrates why EveryID needs:
+1. Sufficient examples per identity
+2. Hierarchical attribute classification
+3. Balance between granularity and generalization
+4. Strong per-class representation
+
+The car classification challenge mirrors ReID's core problem: balancing specificity with generalization while managing limited data per class.
+
