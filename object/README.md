@@ -110,3 +110,4 @@ test the inference script on some images of each class, perhpas four simple imag
 ```bash
 python object/vehicle_classifier/inference_test.py
 ```
+

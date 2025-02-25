@@ -245,3 +245,118 @@ The more extra detail we have the better.
 ## Advanced clustering solutions
 
 In order to improve reid, we are going to need to think of some intelligent clusterig solutions whose metric of good is not simply pixel wise similiarity; this will only take us so far..........
+
+# Computer Vision Toolkit
+
+This repository contains various computer vision modules for object detection, person recognition, and scene analysis.
+
+## Setup
+
+The project uses isolated virtual environments for each module to avoid dependency conflicts. All workflows are managed through the central `run.py` script.
+
+### Prerequisites
+
+- Python 3.11 or higher
+- pip (for package installation)
+
+## Usage
+
+All commands follow this pattern:
+```
+python run.py [module] [subworkflow]
+```
+
+### Object Detection
+
+Object detection workflows for identifying objects in images and videos.
+
+```bash
+# Run object detection tests
+python3 run.py object tests
+
+# Run object detection on a sample image
+python3 run.py object detection
+
+# Run object detection on a sample video
+python3 run.py object video
+
+# Run object tracking on a sample video
+python3 run.py object tracking
+```
+
+### Vehicle Classification
+
+Specialized workflows for vehicle detection and classification.
+
+```bash
+# Download test data for vehicle classifier
+python3 run.py vehicle download_test
+
+# Test annotations for vehicle classifier
+python3 run.py vehicle annotations_test
+
+# Train the vehicle classifier model
+python3 run.py vehicle train
+
+# Run inference with the vehicle classifier
+python3 run.py vehicle inference
+```
+
+### Person Recognition
+
+Workflows for person detection and recognition.
+
+```bash
+# Run person recognition tests
+python3 run.py person tests
+
+# Download the person transformer model
+python3 run.py person download_model
+
+# Run EveryID person recognition
+python3 run.py person everyid
+```
+
+### Scene Analysis
+
+Workflows for scene classification and analysis.
+
+```bash
+# Run scene analysis tests
+python3 run.py scene tests
+
+# Download the scene transformer model
+python3 run.py scene download_transformer
+
+# Run scene analysis inference with transformer model
+python3 run.py scene inference_transformer
+
+```
+
+## Project Structure
+
+```
+project_root/
+├── object/                  # Object detection module
+├── person/                  # Person recognition module
+├── scene/                   # Scene analysis module
+├── requirements/            # Requirements files for each module
+├── venvs/                   # Virtual environments (created by run.py)
+└── run.py                   # Main script for running workflows
+```
+
+## Development
+
+Each module has its own README with detailed information about the implementation and how to run the scripts manually for debugging purposes.
+
+### Adding New Workflows
+
+To add a new workflow:
+
+1. Update the appropriate function in `run.py`
+2. Add the new subworkflow to the choices in the argument parser
+3. Update the requirements file if needed
+
+## License
+
+[Your License Information]
