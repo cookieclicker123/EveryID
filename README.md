@@ -22,6 +22,9 @@
 - [Object Detection](#object-detection)
 - [Person ReID](#person-reid)
 - [Scene Recognition](#scene-recognition)
+- [Future Directions](#future-directions)
+- [Supporting Research Areas](#supporting-research-areas)
+
 
 ## Vision for this specific Repository
 
@@ -89,17 +92,16 @@ To understand the full mission statement and the fundamental reasons behind star
 
 5. **Self-supervised Learning**: Leveraging unlabeled data to improve generalization through techniques like DINO grounding.
 
-6. **Hierarchical Recognition**: Implementing a multi-stage approach that progressively refines identification.
+6. **Clustering and reranking**: Clustering similar tracks and reranking them to improve the essential mAP metric through.
+
+7. **Hierarchical Recognition**: Implementing a multi-stage approach that progressively refines identification.
 
 ## Setup
 
 ```bash
 git clone https://github.com/cookieclicker123/EveryID
 cd everyid
-python3 -m venv .venv
-source .venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
 ```
 
 ## Object Detection
@@ -107,9 +109,7 @@ pip install -r requirements.txt
 The object detection pipeline is a prerequisite for person ReID, identifying all people in frames before recognition occurs.
 
 ### Architecture
-- Two-stage approach: YOLOv8 for detection + SAM for segmentation
-- Multi-class detection (80+ classes including people)
-- Instance segmentation and tracking capabilities
+- 3-stage approach: YOLOv8n for accurate , lightweight detection + DINO for open set detection + bytetrack for tracking
 
 ### Usage
 ```bash
@@ -125,6 +125,48 @@ python3 run.py object video
 # Run object tracking on a sample video
 python3 run.py object tracking
 ```
+
+## Training an Object Detector
+
+In `object/car_classifier`, we demonstrate a challenging problem where detection is insufficient: classifying cars by type, make, and model. This is an **intra-class problem**, where the goal shifts from detecting objects to differentiating between subtle variations within the same class. 
+
+### Key Challenges:
+- **Complexity:** Classifying car types requires high-resolution data, significant computational resources, and large models like `yolo11l.pt` trained on datasets such as the **Stanford Cars Dataset**.
+- **Accessibility:** Without extensive data per class and powerful compute resources, this problem is difficult for most solo developers.
+
+In contrast, in `vehicle_classifier`, we showcase an **inter-class problem** where categories are distinct (e.g., ships, planes, trucks, and cars). Here, detection alone suffices. Using a small pre-trained model like `yolov8n.pt` (3 million parameters) trained on low-resolution images from **CIFAR-10**, we demonstrate:
+- **Efficiency:** Even with deliberately handicapped conditions, detection is effective for inter-class problems.
+- **Speed:** Small models allow ultra-fast training and inference.
+
+### Lessons Learned:
+1. **Don’t Overengineer:** Use small models when the problem is simple. Detection is a critical stage in pipelines like Person ReID and can often meet requirements without large models.
+2. **Detection vs Classification:**
+   - Detection works well for inter-class problems with distinct categories and sufficient data per class.
+   - Classification becomes essential for intra-class problems where subtle differences within the same category must be identified.
+
+---
+
+## Deep Learning Examples in `object/`
+These folders demonstrate how to train detection models effectively while highlighting the limitations of basic detection for Person ReID:
+
+1. **Why Detection Alone Falls Short for Person ReID:**
+   - Even with accurate person detection, we need more than inter-class detection to solve Person ReID problems.
+   - Open-set detection models like DINO offer a more robust solution by capturing richer metadata beyond simple bounding boxes.
+
+2. **Intra-Class Challenges:**
+   - As seen with `car_classifier`, intra-class classification is not easily achievable using standard detection models like YOLO.
+
+3. **Inter-Class Simplicity:**
+   - The `vehicle_classifier` example highlights how distinct categories and adequate data per class allow small models to perform well.
+
+---
+
+## The Power of Open-Set Detection Models
+Open-set models like DINO are pivotal for advancing Person ReID:
+- They go beyond basic detection by identifying nuanced characteristics within detected objects.
+- This capability is critical when dealing with intra-class challenges or when metadata (e.g., age, gender) is required to improve downstream tasks.
+
+For more details on open-set detection and its applications in Person ReID, refer to the documentation in [`dino/README.md`](dino/README.md).
 
 ## Person ReID
 
