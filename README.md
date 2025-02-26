@@ -23,11 +23,16 @@
 - [Person ReID](#person-reid)
 - [Scene Recognition](#scene-recognition)
 
-## Vision
+## Vision for this specific Repository
 
 The goal is to push transformers beyond current benchmarks for recognition tasks. We've achieved this on Market1501, the hallmark person ReID benchmark, scoring above 98% on top rank accuracy.
 
 Recognition is more complex than detection - it requires understanding invariant representations of entities that change over time. Our goal is to give machines this same capability that humans possess naturally.
+
+## Mission Statement
+
+To understand the full mission statement and the fundamental reasons behind starting this company, please visit [www.everyid.ai](http://www.everyid.ai).
+
 
 ## Applications
 
