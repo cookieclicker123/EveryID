@@ -20,6 +20,7 @@
 - [Proposed Solutions](#proposed-solutions)
 - [Setup](#setup)
 - [Object Detection](#object-detection)
+- [Training an Object Detector](#training-an-object-detector)
 - [Person ReID](#person-reid)
 - [Scene Recognition](#scene-recognition)
 - [Future Directions](#future-directions)
@@ -134,7 +135,7 @@ In `object/car_classifier`, we demonstrate a challenging problem where detection
 - **Complexity:** Classifying car types requires high-resolution data, significant computational resources, and large models like `yolo11l.pt` trained on datasets such as the **Stanford Cars Dataset**.
 - **Accessibility:** Without extensive data per class and powerful compute resources, this problem is difficult for most solo developers.
 
-In contrast, in `vehicle_classifier`, we showcase an **inter-class problem** where categories are distinct (e.g., ships, planes, trucks, and cars). Here, detection alone suffices. Using a small pre-trained model like `yolov8n.pt` (3 million parameters) trained on low-resolution images from **CIFAR-10**, we demonstrate:
+In contrast, in `object/vehicle_classifier`, we showcase an **inter-class problem** where categories are distinct (e.g., ships, planes, trucks, and cars). Here, detection alone suffices. Using a small pre-trained model like `yolov8n.pt` (3 million parameters) trained on low-resolution images from **CIFAR-10**, we demonstrate:
 - **Efficiency:** Even with deliberately handicapped conditions, detection is effective for inter-class problems.
 - **Speed:** Small models allow ultra-fast training and inference.
 
