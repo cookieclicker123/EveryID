@@ -160,29 +160,80 @@ To download the dataset:
 mkdir -p ./tmp/datasets && pip install gdown && gdown --id 10wleF-tFtCpZIcvHelYbmVy8sozBHmOj -O ./tmp/datasets/places205_reduced_improved.zip && unzip ./tmp/datasets/places205_reduced_improved.zip -d ./tmp/ && rm ./tmp/datasets/places205_reduced_improved.zip
 ```
 
+Upload a model outside of venv if you want to do that
+
+```bash
+python person/upload_download_models/upload_scene_transformer_transformer.py
+```
+
 ### Usage
 
 ```bash
 # Run scene analysis tests
 python3 run.py scene tests
 
-# Download the scene CNN model
-python3 run.py scene download_cnn
-
 # Download the scene transformer model
 python3 run.py scene download_transformer
-
-# Run scene analysis inference with CNN model
-python3 run.py scene inference_cnn
 
 # Run scene analysis inference with transformer model
 python3 run.py scene inference_transformer
 ```
 
-### Testing the Model
+As you will see, the models fail because in the real world there are so many more 'scenes' than 16 discrete scene classes, but its impressive that in theory we were able to get this itraclass recongition problem working, but now we should move to other methods.
 
-Add test images to `./tmp/test_scene/` and run:
-```bash
-python3 run.py scene inference_transformer
-```
-Results will be saved to `./tmp/scene_results/`.
+# Future Directions
+
+## Leveraging Local Vision LLMs
+We aim to explore the use of local, non-API-based vision LLMs like LLAVA for scene analysis. Depending on the application, snapshots can be taken at key moments:
+
+- **Dynamic Scenes (e.g., moving camera or edited footage):** Snapshots can be captured intermittently during scene transitions.
+- **Static Scenes (e.g., fixed security cameras):** The focus will be on recording "salient events" in real-time, determined by the vision LLM. This process can be enhanced with open-set models that trigger snapshots based on specific thresholds (e.g., velocity changes), enabling the vision LLM to retrospectively analyze significant footage and index it for natural language search.
+
+This approach has immense potential for:
+1. **Searchable Video Indexing:** Allowing users to find people, objects, and events via natural language queries across large datasets.
+2. **Security Applications:** Offering lightweight, local solutions for security companies, potentially disrupting the market with cost-effective alternatives.
+
+---
+
+## Key Research Areas
+
+### 1. Speed and Latency
+- **Feasibility:** Can a local vision LLM like LLAVA operate efficiently in real-time?
+- **Snapshot Frequency:** What is the optimal periodicity for capturing snapshots? Sparse snapshots may improve speed but could risk losing critical details in high-pressure scenarios. This might necessitate using lightweight open-set detectors to ensure no important events are missed between snapshots.
+- **Performance Metrics:** We will measure LLAVA’s processing speed per frame under different conditions:
+  - Optimized with MPS support
+  - Running on GPUs like A100 and H100
+  - Benchmarked over an hour of edited footage
+
+### 2. Data Model Compliance
+- Can LLAVA condense its detailed responses into structured outputs? For example:
+  - Convert its analysis into a concise 3-word summary or a single-word classification (e.g., `BEACH`) based on predefined Enum values.
+  - Achieving this would combine the generality of LLAVA with the determinism of custom deep learning models, offering both flexibility and reliability.
+
+### 3. Enhancing Person Re-Identification (ReID)
+While not essential, LLAVA could assist in narrowing predictions for Person ReID by leveraging its rich metadata:
+- Isolating who an individual cannot be, improving the mean Average Precision (mAP) metric.
+- Addressing challenges like appearance changes across time (e.g., TV shows or long-term CCTV footage).
+
+---
+
+## Supporting Research Areas
+
+### Open Set Object Detection and Clustering
+We will explore methods to enhance Person ReID beyond model training improvements:
+
+1. **Object Detection Phase:**
+   - Investigate tools like [DINO Grounding](dino/README.md), an open-set object detector capable of identifying more than just `person`.
+   - Attach metadata such as age and gender to detections to eliminate false positives and improve mAP through post-processing.
+
+2. **Post-Processing Phase:**
+   - Leverage clustering techniques (e.g., HDBSCAN) to group similar tracks of individuals based on high mAP scores.
+   - Establish robust base representations for individuals early in processing to enable self-reinforcement over time as more data is collected.
+
+For further details, refer to:
+- [`dino/README.md`](dino/README.md) for object detection research.
+- [`clustering/README.md`](clustering/README.md) for clustering methodologies.
+
+---
+
+This roadmap outlines our plans to integrate vision LLMs like LLAVA into scene analysis workflows while addressing key challenges such as speed, accuracy, and scalability.
