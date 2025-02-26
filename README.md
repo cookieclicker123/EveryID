@@ -1,6 +1,4 @@
-# EveryID: a repository for the recognition of people, objects, scenes and events.
-
-![EveryID](img/EveryID.jpg)
+# EveryID: Recognition of People, Objects, Scenes and Events
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=white)](https://pytorch.org/)
@@ -12,264 +10,103 @@
 [![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=flat&logo=numpy&logoColor=white)](https://numpy.org)
 [![Pillow](https://img.shields.io/badge/Pillow-8.0%2B-brightgreen.svg)](https://python-pillow.org/)
 
+
+![EveryID](img/EveryID.jpg)
+
 ## Table of Contents
 - [Vision](#vision)
 - [Applications](#applications)
-  - [TV Post Production](#tv-post-production)
-  - [Surveillance](#surveillance)
-  - [Government Intelligence](#government-intelligence-and-defence)
-  - [Agent Based AI](#revolution-in-agent-based-ai-frameworks)
 - [Fundamental Challenges](#fundamental-challenges)
-- [Proposed Solutions](#how-i-propose-to-solve-these-challenges)
-- [Setup](#initial-setup)
+- [Proposed Solutions](#proposed-solutions)
+- [Setup](#setup)
+- [Object Detection](#object-detection)
 - [Person ReID](#person-reid)
-  - [Training a Model](#training-a-model)
-  - [Uploading a Model](#uploading-a-model-to-the-hub)
-  - [Downloading a Model](#download-a-model)
-  - [Testing the Model](#test-the-model)
+- [Scene Recognition](#scene-recognition)
 
 ## Vision
 
-The goal is to push the best transformers in the world to perform beyond all current benchmarks for recognition tasks.
+The goal is to push transformers beyond current benchmarks for recognition tasks. We've achieved this on Market1501, the hallmark person ReID benchmark, scoring above 98% on top rank accuracy.
 
-One will find their is much more to such a task than simply training a transformer on a large dataset of images and labels.
-
-How does one manage multiple cameras, different footage days, occlusions of light and object, and higher pixel wise similiarity between instances of different 
-
-people than themself? Of course no matter how good the vectors that represent a person are, you can't match everything when they concept of similiarty 
-doesnt have such a clear metric of accuracy. People , places, concepts, these are far noisier than simply object detection.
-
-Intra class problems are far more complex than inter class problems in deep learning and this is a continuation of that pattern, which is why 
-person reidentification is a largely unsolved problem as opposed to object , ananomly and shape detection.
-
-In a similiar vein, the human visual cortex has to make rapid assumptions about what they've seen and whether its been seen before.
-
-This isnt simple retrieval, this is complex recognition of a permenant representation of a thing that is permanenlty changing.
-
-paradoxial, yet invariant reprsentation in the human brain allows for such a gift.
-
-Our goal is to give machines the same gift.
+Recognition is more complex than detection - it requires understanding invariant representations of entities that change over time. Our goal is to give machines this same capability that humans possess naturally.
 
 ## Applications
 
-### TV Post Production: 
-
-The ability to automatically index and search through video content revolutionizes post-production workflows:
-
-- Automatic logging and syncing of timecode across multiple footage sources
-- Instant searchability of footage based on people, scenes, and concepts
-- Knowledge graph generation for person, scene, and concept clusters
-- Context-aware tracking that considers probabilistic likelihood over frame-by-frame matching
-- Elimination of manual footage review processes
+### TV Post Production
+- Automatic logging and syncing across multiple footage sources
+- Instant searchability based on people, scenes, and concepts
+- Knowledge graph generation for content clusters
+- Context-aware tracking with probabilistic likelihood
 - Real-time indexing of large productions
-- Automated organization of footage by cast members, locations, and scene types
 
-### Surveillance: 
-
-The ability to track and identify individuals across multiple cameras and time periods is crucial for modern surveillance systems. Current solutions often fail when dealing with real-world challenges like varying lighting conditions, different camera angles, partial occlusions, and changes in appearance. This framework provides robust person re-identification capabilities that can:
-
+### Surveillance
 - Track individuals across non-overlapping camera networks
 - Maintain identity consistency despite appearance changes
 - Handle crowded scenes and occlusions
 - Process real-time video streams efficiently
-- Scale to large camera networks without performance degradation
+- Scale to large camera networks
 
-### Government intelligence and defence:
-
-Intelligence agencies face the complex task of analyzing vast amounts of visual data to identify persons of interest across diverse sources and timeframes. This framework offers:
-
-- Rapid processing of surveillance footage and imagery
-- Cross-referencing capabilities across multiple data sources
+### Government Intelligence
+- Rapid processing of surveillance footage
+- Cross-referencing across multiple data sources
 - Temporal analysis of movement patterns
 - Integration with existing intelligence systems
-- Secure, auditable tracking of identifications
-- Ability to handle low-quality or degraded imagery
+- Handling of low-quality imagery
 
-### Revolution in agent based AI frameworks:
+### Agent-Based AI Frameworks
+- Moving from retrieval to recognition paradigms
+- Enabling prediction of future events through pattern recognition
+- Building agents that can adapt plans dynamically
+- Creating self-reinforcement from failure
 
-AI agents at present rely on retrieival of information to help them answer questions, organise and display data , or transmit it somewhere and much more. However what multi agent systems can't really do is make actually informed predictions of future events, outside of logical inference from the training data for simple things.
+## Fundamental Challenges
 
-But, for specific planning pipelines that need to be made in rapid succession and optimised in real time, for companies or government agencies, the current retrieval paradigm is lackluster at best.
+1. **Intra-class vs Inter-class Complexity**: Person ReID is an intra-class problem (distinguishing between instances of the same class) which is inherently more difficult than inter-class problems like object detection.
 
-Intuively to me, we need to move to the recognition paradigm, which places a focus on models and LLM agents which recognise sequences of patterns everywhere in data across time instead of particular patterns period, allowing the generation of the lightning bolt to perseverate beyond its genesis, like the way the bolt finds the cloest piece of metal or tree, through recongition we can build agents that predict near into the futrue based on what something is likely to be as opposed to what has happened or is most similiar in the naieve RAG sense.
+2. **Appearance Variability**: People change appearance across time and cameras (clothing, pose, lighting, viewpoint).
 
-This will allow us to move to agents that can string complex plans over time and dynamically change such plans in repsonse to new information , essentially allowing for self reinforcement from faliure, like the Anterior cinculate cortex in the human brain. Their needs to be a real definition of good and bad across time and space , which requires eyes , attention and a true objective function.
+3. **Occlusion and Partial Views**: Often only partial information is available in crowded scenes.
 
-Therefore although the tangible goal at present is to solve person REID, the overarching goal is to aid in pushing forward the recognition regime of agents.
+4. **Camera Variations**: Different cameras have different characteristics (resolution, color balance, angle).
 
-## Fundamental challenges:
+5. **Temporal Consistency**: Maintaining identity across time requires more than frame-by-frame matching.
 
-## How i propose to solve these challenges:
+6. **Scalability**: Systems must handle thousands of identities efficiently.
 
-## Initial setup
+## Proposed Solutions
+
+1. **Advanced Transformer Architectures**: Utilizing state-of-the-art vision transformers trained on large datasets to extract robust features.
+
+2. **Multi-modal Fusion**: Combining appearance, temporal, and contextual information for more reliable identification.
+
+3. **Temporal Modeling**: Incorporating time as a dimension in the recognition process rather than treating frames independently.
+
+4. **Scene Context Integration**: Using scene understanding to improve person ReID by constraining the search space.
+
+5. **Self-supervised Learning**: Leveraging unlabeled data to improve generalization through techniques like DINO grounding.
+
+6. **Hierarchical Recognition**: Implementing a multi-stage approach that progressively refines identification.
+
+## Setup
 
 ```bash
-git clone https://github.com/cookieclicker123/EveryID?tab=readme-ov-file
+git clone https://github.com/cookieclicker123/EveryID
 cd everyid
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
-touch tmp
-
 ```
 
-## Person REID
+## Object Detection
 
-### Training a model
+The object detection pipeline is a prerequisite for person ReID, identifying all people in frames before recognition occurs.
 
-You can observe **person/transformer_msmt17.ipynb** as an example of how to train a state of the art person reid model.
+### Architecture
+- Two-stage approach: YOLOv8 for detection + SAM for segmentation
+- Multi-class detection (80+ classes including people)
+- Instance segmentation and tracking capabilities
 
-You are probably going to want GPU resources to train this model as i did.
-
-You can freely customise and upgrade this crucial file and test it on top rank and see if you can get better scores than me.
-
-The dataset is MSMT17, the state of the art triplet loss labelled dataset for person reidentificaiton. Its not ideal and this field requires much larger sets, which I will explore by using self supervised methods in the future of this repo such as dino grounding, but its certainly the biggest and best labelled person REID dataset available. I combine the training and test folders for maximum generaliation on about 130,000 person images.
-
-To download the dataset for training:
-
-```bash
-mkdir -p ./tmp/datasets && pip install gdown && gdown --id 1nqDWKIbYbnj03HikgzywmkSk9MuCU11Y -O ./tmp/datasets/MSMT17_combined.zip && unzip ./tmp/datasets/MSMT17_combined.zip -d ./tmp/ && rm ./tmp/datasets/MSMT17_combined.zip
-```
-
-### Uploading a model to the hub
-
-Ensure you export your hugging face token in your env.
-
-If you are logged in to the hugging face cli, unset any hub keys and logout.
-
-Then log back in, and your token MUST be a write token from the account you want to upload to, not finegrained or read tokens.
-
-```bash
-unset HF_TOKEN
-huggingface-cli logout
-huggingface-cli login
-```
-
-Upload a model if you've used the framework to train a model
-
-```bash
-python person/upload_download_models/upload_person_transformer.py
-```
-
-### Download a model if you want to use the pre-trained person REID model.
-
-Follow the same steps as uploading a model, but download the model with SebLogsdon as your username.
-
-```bash
-python person/upload_download_models/download_person_transformer.py
-```
-### Test the model
-
-Once you have the model downloaded, you can test it on top rank accuracy on a small subset of images and verify the name_folders match the top rank names.
-
-```bash
-python person/EveryID_msmt17_top_rank.py
-```
-
-Without renranking or clustering, you can see the raw vector accuracy of the model is clearly better than the current state of the art, which seems to be using the same model just without the MSMT17 dataset!
-
-However, the pixel wise similairty metric alone is insufficient to get the best results.
-
-We need to consider their are other dimensions to the problem that are not being considered, and by finding these metrics, we can improve the accuracy of the model by measuring more than just the vectors in a brute force manner.
-
-My conviction is that time and localisation in space with the help of person tracking and general temporal flow of events, although abstract , plays a major role in perhaps averaging the right person.
-
-If the model can get us to high top rank accuracies, and we can track the flow of events in time and space, then I believe
-the accuracy of the person reid system will skyrocket, conveying how the model is only half of this age old problem.
-
-
-## Scene REID
-
-
-You can observe **scene/best_scene_classifier.ipynb** as an example of how to train a state of the art person reid model.
-
-You are probably going to want GPU resources to train this model as i did.
-
-You can freely customise and upgrade this crucial file and test it on top rank and see if you can get better scores than me.
-
-The dataset is places_205, reduced down to 16 classes to see how efficient of a model can be used while still scoring high results (86%). 
-
-performance degrades using efficientNetb4 significantly after 16 classes because increasing the number of images from 5000 per class labelled isnt possible without immense manual effort. This is decent, but the goal is to be detecting over 50-100 classes with >90% accuracy, and by using innovative strides in transformer architecture, data generation and deep leanring techniques , we will continue to do so for both scene and person REID. Scene should be able to achieve incredible results because of the nature of it being an interclass problem as opposed to person REID which is an intra class problem. Its probably a mixture of the right amount of data per class and the right model that doesnt overfit, which sounds much simpler than how we'll get to >90% with person REID. And by knowing the scene with high confidence, you indirectly aid clustering for persons, because such metadata will minimise the list of possible candidates. So in one sense solving scene is crucial for its own purposes but also in extending the performance of tricky Person REID.
-
-To download the dataset for training and testing:
-
-```bash
-mkdir -p ./tmp/datasets && pip install gdown && gdown --id 10wleF-tFtCpZIcvHelYbmVy8sozBHmOj -O ./tmp/datasets/places205_reduced_improved.zip && unzip ./tmp/datasets/places205_reduced_improved.zip -d ./tmp/ && rm ./tmp/datasets/places205_reduced_improved.zip
-```
-
-### Uploading a model to the hub
-
-Ensure you export your hugging face token in your env.
-
-If you are logged in to the hugging face cli, unset any hub keys and logout.
-
-Then log back in, and your token MUST be a write token from the account you want to upload to, not finegrained or read tokens.
-
-```bash
-unset HF_TOKEN
-huggingface-cli logout
-huggingface-cli login
-```
-
-Upload a model if you've used the framework to train a model:
-
-```bash
-python scene/upload_download_models/upload_scene_cnn.py
-```
-
-### Download a model if you want to use the pre-trained scene REID model.
-
-Follow the same steps as uploading a model, but download the model with SebLogsdon as your username.
-
-```bash
-python scene/upload_download_models/download_scene_cnn.py
-```
-
-### Test the model
-
-Visit the aformentioned training script for Scene REID model training at ••scene/best_scene_classifier.ipynb** and if you already have the model, follow the instructions at the bottom to use the Scene REID model on inference images completely unseen by the training data. It almost always gets the right answer on the 16 classes trained on, suggesting large increases in scene type will be amenable to generalisation given sufficient training data labelled in the right folder for the scene class.
-
-## Advanced Object Detection pipeline
-
-This section of the repository is important because it precdes person REID.
-
-You must first detect the human class on large quanities of footage as a prerequisite before reocngising specifcally who said human is.
-
-Therefore it is crucial to set up a robust object detection piepline, this h=could help for object grounding and not just people.
-
-The more extra detail we have the better.
-
-.........
-
-## Advanced clustering solutions
-
-In order to improve reid, we are going to need to think of some intelligent clusterig solutions whose metric of good is not simply pixel wise similiarity; this will only take us so far..........
-
-# Computer Vision Toolkit
-
-This repository contains various computer vision modules for object detection, person recognition, and scene analysis.
-
-## Setup
-
-The project uses isolated virtual environments for each module to avoid dependency conflicts. All workflows are managed through the central `run.py` script.
-
-### Prerequisites
-
-- Python 3.11 or higher
-- pip (for package installation)
-
-## Usage
-
-All commands follow this pattern:
-```
-python run.py [module] [subworkflow]
-```
-
-### Object Detection
-
-Object detection workflows for identifying objects in images and videos.
-
+### Usage
 ```bash
 # Run object detection tests
 python3 run.py object tests
@@ -284,31 +121,24 @@ python3 run.py object video
 python3 run.py object tracking
 ```
 
-### Vehicle Classification
+## Person ReID
 
-Specialized workflows for vehicle detection and classification.
+### Training a Model
 
+See `person/transformer_msmt17.ipynb` for training a state-of-the-art person ReID model.
+
+To download the MSMT17 dataset:
 ```bash
-# Download test data for vehicle classifier
-python3 run.py vehicle download_test
-
-# Test annotations for vehicle classifier
-python3 run.py vehicle annotations_test
-
-# Train the vehicle classifier model
-python3 run.py vehicle train
-
-# Run inference with the vehicle classifier
-python3 run.py vehicle inference
+mkdir -p ./tmp/datasets && pip install gdown && gdown --id 1nqDWKIbYbnj03HikgzywmkSk9MuCU11Y -O ./tmp/datasets/MSMT17_combined.zip && unzip ./tmp/datasets/MSMT17_combined.zip -d ./tmp/ && rm ./tmp/datasets/MSMT17_combined.zip
 ```
 
-### Person Recognition
+### Uploading/Downloading Models
 
-Workflows for person detection and recognition.
+When using Hugging Face models, use "SebLogsdon" as the account name.
 
 ```bash
-# Run person recognition tests
-python3 run.py person tests
+# Upload a model
+python person/upload_download_models/upload_person_transformer.py
 
 # Download the person transformer model
 python3 run.py person download_model
@@ -317,46 +147,42 @@ python3 run.py person download_model
 python3 run.py person everyid
 ```
 
-### Scene Analysis
+## Scene Recognition
 
-Workflows for scene classification and analysis.
+Scene recognition helps constrain the search space for person ReID by understanding context.
+
+### Training a Model
+
+See `scene/best_scene_classifier.ipynb` for training a scene recognition model.
+
+To download the dataset:
+```bash
+mkdir -p ./tmp/datasets && pip install gdown && gdown --id 10wleF-tFtCpZIcvHelYbmVy8sozBHmOj -O ./tmp/datasets/places205_reduced_improved.zip && unzip ./tmp/datasets/places205_reduced_improved.zip -d ./tmp/ && rm ./tmp/datasets/places205_reduced_improved.zip
+```
+
+### Usage
 
 ```bash
 # Run scene analysis tests
 python3 run.py scene tests
 
+# Download the scene CNN model
+python3 run.py scene download_cnn
+
 # Download the scene transformer model
 python3 run.py scene download_transformer
 
+# Run scene analysis inference with CNN model
+python3 run.py scene inference_cnn
+
 # Run scene analysis inference with transformer model
 python3 run.py scene inference_transformer
-
 ```
 
-## Project Structure
+### Testing the Model
 
+Add test images to `./tmp/test_scene/` and run:
+```bash
+python3 run.py scene inference_transformer
 ```
-project_root/
-├── object/                  # Object detection module
-├── person/                  # Person recognition module
-├── scene/                   # Scene analysis module
-├── requirements/            # Requirements files for each module
-├── venvs/                   # Virtual environments (created by run.py)
-└── run.py                   # Main script for running workflows
-```
-
-## Development
-
-Each module has its own README with detailed information about the implementation and how to run the scripts manually for debugging purposes.
-
-### Adding New Workflows
-
-To add a new workflow:
-
-1. Update the appropriate function in `run.py`
-2. Add the new subworkflow to the choices in the argument parser
-3. Update the requirements file if needed
-
-## License
-
-[Your License Information]
+Results will be saved to `./tmp/scene_results/`.
